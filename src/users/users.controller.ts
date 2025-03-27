@@ -14,6 +14,8 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Roles } from 'src/common/decorator/roles.decorator';
+import { Role } from 'src/common/guards/roles.guard';
 
 @Controller('users')
 export class UsersController {
@@ -43,6 +45,7 @@ export class UsersController {
   }
 
   @Delete(':uuid')
+  @Roles([Role.ADMIN])
   remove(@Param('uuid') uuid: string) {
     return this.usersService.remove(uuid);
   }
