@@ -25,7 +25,7 @@ export class RunsController {
     return this.runsService.create(request.user.id, data);
   }
 
-  @Get()
+  @Get('all')
   @Roles([UserRole.ADMIN])
   findAll() {
     return this.runsService.findAll();
