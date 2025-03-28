@@ -1,15 +1,15 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { LoggerMiddleware } from './common/middleware/logger.middleware';
-import { UsersController } from './users/users.controller';
 import { AuthModule } from './auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
-import Joi from 'joi';
 import { RolesGuard } from './common/guards/roles.guard';
-import { APP_GUARD } from '@nestjs/core';
-import { PrismaService } from './prisma.service';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { PrismaModule } from './prisma/prisma.module';
+import { UsersController } from './users/users.controller';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,12 +22,12 @@ import { PrismaService } from './prisma.service';
         DATABASE_URL: Joi.string().required(),
       }),
     }),
+    PrismaModule,
     UsersModule,
     AuthModule,
   ],
   controllers: [AppController],
   providers: [
-    PrismaService,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
