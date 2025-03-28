@@ -20,8 +20,8 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Roles([UserRole.ADMIN])
   @Post()
+  @Roles([UserRole.ADMIN])
   create(@Body() data: UserCreateDto) {
     return this.usersService.create(data);
   }
@@ -32,13 +32,19 @@ export class UsersController {
   }
 
   @Get(':uuid')
-  findOne(@Param('uuid', new ParseUUIDPipe()) uuid: string) {
-    return this.usersService.findOne(uuid);
+  async findOne(@Param('uuid', ParseUUIDPipe) uuid: string) {
+    const user = await this.usersService.findOne(uuid);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return user;
   }
 
   @Patch(':uuid')
   update(
-    @Param('uuid') uuid: string,
+    @Param('uuid', ParseUUIDPipe) uuid: string,
     @Body() data: UserUpdateDto,
     @Req() request: AuthedRequest,
   ) {
@@ -58,7 +64,10 @@ export class UsersController {
 
   @Delete(':uuid')
   @Roles([UserRole.ADMIN])
-  remove(@Param('uuid') uuid: string, @Req() request: AuthedRequest) {
+  remove(
+    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @Req() request: AuthedRequest,
+  ) {
     // Prevent admins from deleting themselves
     if (uuid === request.user.id) {
       throw new Error('Unauthorized');

@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 
 const duration = 1000 * 60 * 58 + 1000 * 36;
 const distance = 5.6;
-const averageSpeed = distance / (duration * 1000 * 60 * 60);
-const averagePace = (duration * 1000 * 60) / distance;
+const averageSpeed = distance / (duration / (1000 * 60 * 60));
+const averagePace = duration / (1000 * 60) / distance;
 
 const userData: Prisma.UserCreateInput[] = [
   {
