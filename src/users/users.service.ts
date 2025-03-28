@@ -9,27 +9,17 @@ export class UsersService {
   create(data: Prisma.UserCreateInput) {
     return this.prisma.user.create({
       data,
-      omit: {
-        password: true,
-      },
     });
   }
 
   findAll() {
-    return this.prisma.user.findMany({
-      omit: {
-        password: true,
-      },
-    });
+    return this.prisma.user.findMany();
   }
 
   async findOne(uuid: string) {
     return this.prisma.user.findUnique({
       where: {
         id: uuid,
-      },
-      omit: {
-        password: true,
       },
     });
   }
