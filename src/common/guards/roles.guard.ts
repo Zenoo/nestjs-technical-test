@@ -1,8 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { AuthedRequest } from 'src/auth/dto/sign-in.dto';
 import { Roles } from '../decorator/roles.decorator';
-import { Request } from 'express';
-import { User } from 'src/users/entities/user.entity';
 
 export enum Role {
   ADMIN = 'admin',
@@ -17,11 +16,7 @@ export class RolesGuard implements CanActivate {
     if (!roles) {
       return true;
     }
-    const request = context.switchToHttp().getRequest<
-      Request & {
-        user: User;
-      }
-    >();
+    const request = context.switchToHttp().getRequest<AuthedRequest>();
     const user = request.user;
     // return matchRoles(roles, user.roles);
     return true;

@@ -7,10 +7,9 @@ import {
   Post,
   Req,
 } from '@nestjs/common';
-import { Request } from 'express';
-import { AuthService } from './auth.service';
-import { SignInDto } from './dto/sign-in.dto';
 import { Public } from 'src/common/decorator/public.decorator';
+import { AuthService } from './auth.service';
+import { AuthedRequest, SignInDto } from './dto/sign-in.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -24,7 +23,7 @@ export class AuthController {
   }
 
   @Get('profile')
-  getProfile(@Req() req: Request) {
+  getProfile(@Req() req: AuthedRequest) {
     return req.user;
   }
 }
