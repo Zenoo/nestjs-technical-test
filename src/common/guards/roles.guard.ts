@@ -2,6 +2,10 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthedRequest } from 'src/auth/dto/sign-in.dto';
 import { Roles } from '../decorator/roles.decorator';
+import { User, UserRole } from '@prisma/client';
+
+export const isAdmin = (user: Pick<User, 'roles'>) =>
+  user.roles.includes(UserRole.ADMIN);
 
 @Injectable()
 export class RolesGuard implements CanActivate {
