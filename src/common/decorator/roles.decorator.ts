@@ -1,4 +1,4 @@
 import { Reflector } from '@nestjs/core';
-import { Role } from '../guards/roles.guard';
+import { UserRole } from '@prisma/client';
 
-export const Roles = Reflector.createDecorator<Role[]>();
+export const Roles = Reflector.createDecorator<UserRole[]>();

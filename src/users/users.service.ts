@@ -1,42 +1,64 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [
-    {
-      id: '85fed9e2-e7ad-47c4-a4be-2f5814e7033a',
-      username: 'john',
-      password: 'changeme',
-    },
-    {
-      id: '84b4a12f-13c9-4de7-9676-3c004bced5c3',
-      username: 'maria',
-      password: 'guess',
-    },
-  ];
+  constructor(private readonly prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
-    this.users.push(createUserDto);
-
-    return createUserDto;
+  create(data: Prisma.UserCreateInput) {
+    return this.prisma.user.create({
+      data,
+      omit: {
+        password: true,
+      },
+    });
   }
 
   findAll() {
-    return this.users;
+    return this.prisma.user.findMany({
+      omit: {
+        password: true,
+      },
+    });
   }
 
-  findOne(username: string) {
-    return this.users.find((user) => user.username === username);
+  async findOne(uuid: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: uuid,
+      },
+      omit: {
+        password: true,
+      },
+    });
   }
 
-  update(uuid: string, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${uuid} user`;
+  async findByUsername(username: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        username,
+      },
+      omit: {
+        password: false,
+      },
+    });
+  }
+
+  update(uuid: string, data: Prisma.UserUpdateInput) {
+    return this.prisma.user.update({
+      where: {
+        id: uuid,
+      },
+      data,
+    });
   }
 
   remove(uuid: string) {
-    return `This action removes a #${uuid} user`;
+    return this.prisma.user.delete({
+      where: {
+        id: uuid,
+      },
+    });
   }
 }

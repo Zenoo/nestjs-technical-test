@@ -3,10 +3,6 @@ import { Reflector } from '@nestjs/core';
 import { AuthedRequest } from 'src/auth/dto/sign-in.dto';
 import { Roles } from '../decorator/roles.decorator';
 
-export enum Role {
-  ADMIN = 'admin',
-}
-
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
@@ -17,8 +13,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
     const request = context.switchToHttp().getRequest<AuthedRequest>();
-    const user = request.user;
-    // return matchRoles(roles, user.roles);
-    return true;
+
+    return roles.some((role) => request.user.roles.includes(role));
   }
 }

@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
 import { RolesGuard } from './common/guards/roles.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { PrismaService } from './prisma.service';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { APP_GUARD } from '@nestjs/core';
       validationSchema: Joi.object({
         PORT: Joi.number().port(),
         JWT_SECRET: Joi.string().required(),
+        DATABASE_URL: Joi.string().required(),
       }),
     }),
     UsersModule,
@@ -25,6 +27,7 @@ import { APP_GUARD } from '@nestjs/core';
   ],
   controllers: [AppController],
   providers: [
+    PrismaService,
     {
       provide: APP_GUARD,
       useClass: RolesGuard,

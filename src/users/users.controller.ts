@@ -1,36 +1,28 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
   ParseUUIDPipe,
-  DefaultValuePipe,
-  Query,
-  ParseBoolPipe,
+  Patch,
+  Post,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
-import { Role } from 'src/common/guards/roles.guard';
+import { UsersService } from './users.service';
+import { Prisma, UserRole } from '@prisma/client';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(@Body() data: Prisma.UserCreateInput) {
+    return this.usersService.create(data);
   }
 
   @Get()
-  findAll(
-    @Query('activeOnly', new DefaultValuePipe(false), ParseBoolPipe)
-    activeOnly: boolean,
-  ) {
+  findAll() {
     return this.usersService.findAll();
   }
 
@@ -40,12 +32,12 @@ export class UsersController {
   }
 
   @Patch(':uuid')
-  update(@Param('uuid') uuid: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(uuid, updateUserDto);
+  update(@Param('uuid') uuid: string, @Body() data: Prisma.UserUpdateInput) {
+    return this.usersService.update(uuid, data);
   }
 
   @Delete(':uuid')
-  @Roles([Role.ADMIN])
+  @Roles([UserRole.ADMIN])
   remove(@Param('uuid') uuid: string) {
     return this.usersService.remove(uuid);
   }

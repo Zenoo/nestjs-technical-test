@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+}
+
+model User {
+  id       String     @id @default(uuid())
+  username String     @unique
+  password String
+  runs     Run[]
+  roles    UserRole[] @default([])
+}
+
+enum RunType {
+  TRAINING
+  RACE
+  LEISURE
+}
+
+model Run {
+  id           String   @id @default(uuid())
+  type         RunType
+  start        DateTime
+  distance     Float // km
+  duration     Int // ms
+  averageSpeed Float // km/h
+  averagePace  Float // min/km
+  comment      String?
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@index([type]) // Filter
+  @@index([start]) // Sort/Filter
+  @@index([userId]) // Filter
+  @@index([distance]) // Sort/Filter
+  @@index([duration]) // Sort/Filter
+  @@index([averageSpeed]) // Sort/Filter
+  @@index([averagePace]) // Sort/Filter
+}
