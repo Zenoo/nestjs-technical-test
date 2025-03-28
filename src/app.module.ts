@@ -9,6 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { RunsModule } from './runs/runs.module';
 import { UsersController } from './users/users.controller';
 import { UsersModule } from './users/users.module';
+import { RecordsModule } from './records/records.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     AuthModule,
     RunsModule,
+    RecordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
