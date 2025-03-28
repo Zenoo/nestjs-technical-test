@@ -3,16 +3,18 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
-import { AuthedRequest } from 'src/auth/dto/sign-in.dto';
-import { Roles } from 'src/common/decorator/roles.decorator';
-import { isAdmin } from 'src/common/guards/roles.guard';
+import { AuthedRequest } from '../auth/dto/sign-in.dto';
+import { Roles } from '../common/decorator/roles.decorator';
+import { isAdmin } from '../common/guards/roles.guard';
 import { UserCreateDto, UserUpdateDto } from './users.dto';
 import { UsersService } from './users.service';
 
@@ -36,7 +38,7 @@ export class UsersController {
     const user = await this.usersService.findOne(uuid);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException();
     }
 
     return user;
@@ -51,12 +53,12 @@ export class UsersController {
     const admin = isAdmin(request.user);
     // If the user is not an admin, they can only update their own user
     if (uuid !== request.user.id && !admin) {
-      throw new Error('Unauthorized');
+      throw new UnauthorizedException();
     }
 
     // Roles can only be updated by admins
     if (data.roles && !admin) {
-      throw new Error('Unauthorized');
+      throw new UnauthorizedException();
     }
 
     return this.usersService.update(uuid, data);
@@ -70,7 +72,7 @@ export class UsersController {
   ) {
     // Prevent admins from deleting themselves
     if (uuid === request.user.id) {
-      throw new Error('Unauthorized');
+      throw new UnauthorizedException();
     }
 
     return this.usersService.remove(uuid);

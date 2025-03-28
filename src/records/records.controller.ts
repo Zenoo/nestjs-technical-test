@@ -1,6 +1,6 @@
 import { Controller, Get, ParseArrayPipe, Query, Req } from '@nestjs/common';
 import { RecordsService } from './records.service';
-import { AuthedRequest } from 'src/auth/dto/sign-in.dto';
+import { AuthedRequest } from '../auth/dto/sign-in.dto';
 
 @Controller('records')
 export class RecordsController {

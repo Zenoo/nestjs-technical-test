@@ -7,7 +7,7 @@ import {
   Post,
   Req,
 } from '@nestjs/common';
-import { Public } from 'src/common/decorator/public.decorator';
+import { Public } from '../common/decorator/public.decorator';
 import { AuthService } from './auth.service';
 import { AuthedRequest, SignInDto } from './dto/sign-in.dto';
 

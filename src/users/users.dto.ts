@@ -1,5 +1,5 @@
 import { UserRole } from '@prisma/client';
-import { IsIn, IsStrongPassword, Length } from 'class-validator';
+import { IsIn, IsOptional, IsStrongPassword, Length } from 'class-validator';
 
 export class UserCreateDto {
   @Length(3, 32)
@@ -18,8 +18,10 @@ export class UserUpdateDto {
 
   @IsStrongPassword()
   @Length(8, 128)
-  password: string;
+  @IsOptional()
+  password?: string;
 
   @IsIn(Object.values(UserRole))
-  roles: UserRole[];
+  @IsOptional()
+  roles?: UserRole[];
 }

@@ -3,16 +3,18 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
-import { AuthedRequest } from 'src/auth/dto/sign-in.dto';
-import { Roles } from 'src/common/decorator/roles.decorator';
-import { isAdmin } from 'src/common/guards/roles.guard';
+import { AuthedRequest } from '../auth/dto/sign-in.dto';
+import { Roles } from '../common/decorator/roles.decorator';
+import { isAdmin } from '../common/guards/roles.guard';
 import { RunCreateDto, RunUpdateDto } from './runs.dto';
 import { RunsService } from './runs.service';
 
@@ -45,12 +47,12 @@ export class RunsController {
     const run = await this.runsService.findOne(uuid);
 
     if (!run) {
-      throw new Error('Run not found');
+      throw new NotFoundException();
     }
 
     // If the user is not an admin, they can only view their own runs
     if (run.userId !== request.user.id && !admin) {
-      throw new Error('Unauthorized');
+      throw new UnauthorizedException();
     }
 
     return run;
@@ -66,12 +68,12 @@ export class RunsController {
     const run = await this.runsService.findOne(uuid);
 
     if (!run) {
-      throw new Error('Run not found');
+      throw new NotFoundException();
     }
 
     // If the user is not an admin, they can only update their own runs
     if (run.userId !== request.user.id && !admin) {
-      throw new Error('Unauthorized');
+      throw new UnauthorizedException();
     }
 
     return this.runsService.update(uuid, data);
@@ -86,12 +88,12 @@ export class RunsController {
     const run = await this.runsService.findOne(uuid);
 
     if (!run) {
-      throw new Error('Run not found');
+      throw new NotFoundException();
     }
 
     // If the user is not an admin, they can only delete their own runs
     if (run.userId !== request.user.id && !admin) {
-      throw new Error('Unauthorized');
+      throw new UnauthorizedException();
     }
 
     return this.runsService.remove(uuid);
