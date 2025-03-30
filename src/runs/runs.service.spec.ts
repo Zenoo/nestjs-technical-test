@@ -4,6 +4,7 @@ import { Run, RunType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { RunCreateDto, RunUpdateDto } from './runs.dto';
 import { RunsService } from './runs.service';
+import { NotFoundException } from '@nestjs/common';
 
 const sampleUserId = 'user-123';
 const sampleRuns: Run[] = [
@@ -139,19 +140,67 @@ describe('RunsService', () => {
   });
 
   describe('update', () => {
-    it('should update a run by ID', async () => {
+    it('should update a run by ID with new averages if distance or duration is provided', async () => {
       const uuid = sampleRuns[0].id;
-      const data: RunUpdateDto = { comment: 'Updated comment' };
-      const updatedRun = { ...sampleRuns[0], ...data };
+      const data: RunUpdateDto = { distance: 15, duration: 5400000 }; // New distance and duration
+      const currentRun = sampleRuns[0];
+      const updatedRun = {
+        ...currentRun,
+        ...data,
+        averageSpeed: 10, // Expected average speed
+        averagePace: 6, // Expected average pace
+      };
+
+      jest.spyOn(prisma.run, 'findUnique').mockResolvedValue(currentRun);
       jest.spyOn(prisma.run, 'update').mockResolvedValue(updatedRun);
 
       const result = await service.update(uuid, data);
 
+      expect(prisma.run.findUnique).toHaveBeenCalledWith({
+        where: { id: uuid },
+      });
+      expect(prisma.run.update).toHaveBeenCalledWith({
+        where: { id: uuid },
+        data: {
+          ...data,
+          averageSpeed: 10, // Expected average speed
+          averagePace: 6, // Expected average pace
+        },
+      });
+      expect(result).toEqual(updatedRun);
+    });
+
+    it('should update a run by ID without recalculating averages if distance and duration are not provided', async () => {
+      const uuid = sampleRuns[0].id;
+      const data: RunUpdateDto = { comment: 'Updated comment' }; // No distance or duration
+      const updatedRun = { ...sampleRuns[0], ...data };
+
+      jest.spyOn(prisma.run, 'findUnique').mockResolvedValue(sampleRuns[0]);
+      jest.spyOn(prisma.run, 'update').mockResolvedValue(updatedRun);
+
+      const result = await service.update(uuid, data);
+
+      expect(prisma.run.findUnique).not.toHaveBeenCalled(); // No need to fetch current run
       expect(prisma.run.update).toHaveBeenCalledWith({
         where: { id: uuid },
         data,
       });
       expect(result).toEqual(updatedRun);
+    });
+
+    it('should throw a NotFoundException if the run does not exist', async () => {
+      const uuid = 'non-existent-id';
+      const data: RunUpdateDto = { distance: 15, duration: 5400000 };
+
+      jest.spyOn(prisma.run, 'findUnique').mockResolvedValue(null);
+
+      await expect(service.update(uuid, data)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(prisma.run.findUnique).toHaveBeenCalledWith({
+        where: { id: uuid },
+      });
+      expect(prisma.run.update).not.toHaveBeenCalled();
     });
   });
 

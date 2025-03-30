@@ -27,5 +27,19 @@ export class RunUpdateDto {
   type?: RunType;
 
   @IsOptional()
+  @Type(() => Date)
+  @MaxDate(() => new Date())
+  start?: Date;
+
+  @IsOptional()
+  @IsPositive()
+  @IsInt()
+  duration?: number;
+
+  @IsOptional()
+  @IsPositive()
+  distance?: number;
+
+  @IsOptional()
   comment?: string;
 }
