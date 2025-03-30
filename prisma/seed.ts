@@ -38,10 +38,13 @@ async function main() {
   }
 
   console.log(`Start seeding ...`);
-  const result = await prisma.user.createMany({
-    data: userData,
-  });
-  console.log(`Seeded ${result.count} users.`);
+  for (const u of userData) {
+    const user = await prisma.user.create({
+      data: u,
+      select: { id: true },
+    });
+    console.log(`Created user with id: ${user.id}`);
+  }
   console.log(`Seeding finished.`);
 }
 
