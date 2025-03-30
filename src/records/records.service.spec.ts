@@ -45,6 +45,7 @@ describe('RecordsService', () => {
           averageSpeed: 10,
           averagePace: 6,
           comment: null,
+          public: true,
           userId,
         },
         {
@@ -56,6 +57,7 @@ describe('RecordsService', () => {
           averageSpeed: 10,
           averagePace: 6,
           comment: null,
+          public: true,
           userId,
         },
       ];
@@ -113,6 +115,7 @@ describe('RecordsService', () => {
           averageSpeed: 10,
           averagePace: 6,
           comment: null,
+          public: true,
           userId,
         },
         {
@@ -124,6 +127,7 @@ describe('RecordsService', () => {
           averageSpeed: 10,
           averagePace: 6,
           comment: null,
+          public: true,
           userId,
         },
       ];

@@ -4,7 +4,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { AuthedRequest, SignInDto } from './dto/sign-in.dto';
+import { AuthedRequest, UserAuthDto } from './dto/sign-in.dto';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -61,7 +61,7 @@ describe('AuthController', () => {
 
   describe('signIn', () => {
     it('should call AuthService.signIn and return a token', async () => {
-      const dto: SignInDto = { username: 'testUser', password: 'password' };
+      const dto: UserAuthDto = { username: 'testUser', password: 'password' };
       const token = { accessToken: 'jwt-token' };
       mockAuthService.signIn.mockResolvedValue(token);
 
@@ -74,7 +74,7 @@ describe('AuthController', () => {
 
   describe('signUp', () => {
     it('should call AuthService.signUp and return the created user', async () => {
-      const dto: SignInDto = { username: 'newUser', password: 'password' };
+      const dto: UserAuthDto = { username: 'newUser', password: 'password' };
       const createdUser = { id: 'user-123', username: dto.username };
       mockAuthService.signUp.mockResolvedValue(createdUser);
 

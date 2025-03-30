@@ -17,6 +17,7 @@ const sampleRuns: Run[] = [
     averageSpeed: 10,
     userId: sampleUserId,
     comment: 'Morning run',
+    public: true,
   },
   {
     id: 'run-2',
@@ -28,6 +29,7 @@ const sampleRuns: Run[] = [
     averageSpeed: 10,
     userId: 'user-456',
     comment: null,
+    public: true,
   },
 ];
 
