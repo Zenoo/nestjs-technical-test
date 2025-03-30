@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { User, UserRole } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcrypt';
+import { ConflictException } from '@nestjs/common';
 
 const testUser1 = 'foo';
 const userId1 = uuidv4();
@@ -31,6 +32,7 @@ const oneUser = userArray[0];
 const db = {
   user: {
     findMany: jest.fn().mockResolvedValue(userArray),
+    findFirst: jest.fn().mockResolvedValue(oneUser),
     findUnique: jest.fn().mockResolvedValue(oneUser),
     create: jest.fn().mockResolvedValue(oneUser),
     update: jest.fn().mockResolvedValue(oneUser),
@@ -43,6 +45,8 @@ describe('UsersService', () => {
   let prisma: PrismaService;
 
   beforeEach(async () => {
+    jest.clearAllMocks(); // Clear mock call history before each test
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
@@ -62,15 +66,32 @@ describe('UsersService', () => {
   });
 
   describe('create', () => {
-    it('should create a user', async () => {
+    it('should create a user if the username is unique', async () => {
       const dto = { username: 'newUser', password: 'password', roles: [] };
       const createdUser = { ...dto, id: uuidv4() };
+
+      db.user.findFirst.mockResolvedValue(null); // No existing user with the same username
       db.user.create.mockResolvedValue(createdUser);
 
       const result = await service.create(dto);
 
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: { username: dto.username },
+      });
       expect(prisma.user.create).toHaveBeenCalledWith({ data: dto });
       expect(result).toEqual(createdUser);
+    });
+
+    it('should throw a ConflictException if the username already exists', async () => {
+      const dto = { username: 'existingUser', password: 'password', roles: [] };
+
+      db.user.findFirst.mockResolvedValue(oneUser); // Existing user with the same username
+
+      await expect(service.create(dto)).rejects.toThrow(ConflictException);
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: { username: dto.username },
+      });
+      expect(prisma.user.create).not.toHaveBeenCalled();
     });
   });
 
@@ -129,19 +150,26 @@ describe('UsersService', () => {
   });
 
   describe('update', () => {
-    it('should update a user', async () => {
+    it('should update a user with a hashed password if provided', async () => {
       const dto = {
         username: 'updatedUser',
         password: 'newPassword',
       };
-      const hashedPassword: string = 'hashed-newPassword';
+      const hashedPassword = 'hashed-newPassword';
 
-      // Mock bcrypt.hash to return the hashed password
       jest.spyOn(bcrypt, 'hash').mockImplementation(() => hashedPassword);
+      db.user.findFirst.mockResolvedValue(null); // No conflicting username
+      db.user.update.mockResolvedValue(oneUser);
 
       const result = await service.update(userId1, dto);
 
       expect(bcrypt.hash).toHaveBeenCalledWith(dto.password, 10);
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          username: dto.username,
+          id: { not: userId1 },
+        },
+      });
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: userId1 },
         data: { ...dto, password: hashedPassword },
@@ -152,13 +180,40 @@ describe('UsersService', () => {
     it('should update a user without changing the password if not provided', async () => {
       const dto = { username: 'updatedUser' };
 
+      db.user.findFirst.mockResolvedValue(null); // No conflicting username
+      db.user.update.mockResolvedValue(oneUser);
+
       const result = await service.update(userId1, dto);
 
+      expect(bcrypt.hash).not.toHaveBeenCalled();
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          username: dto.username,
+          id: { not: userId1 },
+        },
+      });
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: userId1 },
         data: dto,
       });
       expect(result).toEqual(oneUser);
+    });
+
+    it('should throw a ConflictException if the username already exists', async () => {
+      const dto = { username: 'existingUser' };
+
+      db.user.findFirst.mockResolvedValue(oneUser); // Conflicting username
+
+      await expect(service.update(userId1, dto)).rejects.toThrow(
+        ConflictException,
+      );
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: {
+          username: dto.username,
+          id: { not: userId1 },
+        },
+      });
+      expect(prisma.user.update).not.toHaveBeenCalled();
     });
   });
 
