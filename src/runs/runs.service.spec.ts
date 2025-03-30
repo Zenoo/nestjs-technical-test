@@ -18,6 +18,7 @@ const sampleRuns: Run[] = [
     averageSpeed: 10,
     userId: 'user-123',
     comment: 'Morning run',
+    public: true,
   },
   {
     id: 'run-2',
@@ -29,6 +30,7 @@ const sampleRuns: Run[] = [
     averageSpeed: 10,
     userId: 'user-123',
     comment: null,
+    public: true,
   },
 ];
 
@@ -73,13 +75,14 @@ describe('RunsService', () => {
         duration: sampleRuns[0].duration,
         comment: sampleRuns[0].comment ?? undefined,
       };
-      const expectedRun = {
+      const expectedRun: Run = {
         id: sampleRuns[0].id,
         ...data,
         averageSpeed: sampleRuns[0].averageSpeed,
         averagePace: sampleRuns[0].averagePace,
         userId,
         comment: data.comment ?? null,
+        public: sampleRuns[0].public,
       };
 
       jest.spyOn(prisma.run, 'create').mockResolvedValue(expectedRun);

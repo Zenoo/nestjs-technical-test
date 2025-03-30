@@ -15,12 +15,14 @@ const userArray: User[] = [
     username: testUser1,
     password: 'hashed-password',
     roles: [UserRole.ADMIN],
+    autoPublishRuns: false,
   },
   {
     id: uuidv4(),
     username: 'bar',
     password: 'hashed-password',
     roles: [],
+    autoPublishRuns: false,
   },
 ];
 

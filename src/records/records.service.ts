@@ -38,6 +38,7 @@ export class RecordsService {
       const fastestRuns = await this.prisma.$queryRaw<Run[]>`
         SELECT * FROM "Run"
         WHERE "distance" >= ${distance}
+        AND "public" = true
         ORDER BY "averagePace" ASC
         LIMIT 3
       `;
