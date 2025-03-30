@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -74,13 +75,24 @@ export class AuthController {
       },
     },
   })
+  @ApiUnauthorizedResponse({
+    description: 'The user is already connected. The user was not created.',
+    type: ErrorDto,
+  })
   @ApiConflictResponse({
     description: 'The username already exists. The user was not created.',
     type: ErrorDto,
   })
   @Post('register')
   @Public()
-  signUp(@Body() signInDto: UserAuthDto) {
+  signUp(@Body() signInDto: UserAuthDto, @Req() req: AuthedRequest) {
+    // Check if the user is already connected
+    if (req.user) {
+      throw new UnauthorizedException(
+        'You are already connected. Please log out before signing up.',
+      );
+    }
+
     return this.authService.signUp(signInDto.username, signInDto.password);
   }
 

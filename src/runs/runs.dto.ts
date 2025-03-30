@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { RunType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsInt,
   IsOptional,
@@ -95,6 +96,14 @@ export class RunUpdateDto {
    */
   @IsOptional()
   comment?: string;
+
+  /**
+   * Run public status
+   * @example true
+   */
+  @IsOptional()
+  @IsBoolean()
+  public?: boolean;
 }
 
 export class RunDto extends RunCreateDto {
